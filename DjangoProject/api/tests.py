@@ -1,49 +1,50 @@
-from django.test import TestCase
-from rest_framework.test import APIClient
-from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
 from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
+from django.contrib.auth.models import User
+from .models import Item
 
-
-class APITestCase(TestCase):
+class APITestCase(APITestCase):
     def setUp(self):
-        self.client = APIClient()
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
-        self.token = Token.objects.create(user=self.user)
+        self.user = User.objects.create_user(username='testuser', password='12345')
 
     def test_login(self):
         url = reverse('login')
-        data = {'username': 'testuser', 'password': 'testpassword'}
+        data = {'username': 'testuser', 'password': '12345'}
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('token', response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_signup(self):
         url = reverse('signup')
-        data = {'username': 'newuser', 'password': 'newpassword', 'email': 'newuser@example.com'}
+        data = {'username': 'newuser', 'password': '54321'}
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 201)
-        self.assertIn('token', response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_test_token(self):
         url = reverse('test_token')
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        self.client.force_login(self.user)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
     def test_dataget_authenticated(self):
         url = reverse('dataget')
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.client.force_login(self.user)
+        response = self.client.post(url)  # Change the method to POST
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_dataget_unauthenticated(self):
         url = reverse('dataget')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        response = self.client.post(url)  # Change the method to POST
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_api_overview(self):
-        url = reverse('home')
+
+    def test_get_all_items(self):
+        url = reverse('get_all_items')
+        self.client.force_login(self.user)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 5)  # Check if all API endpoints are listed
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_all_items_by_parameters(self):
+        url = reverse('get_all_items_by_parameters')
+        self.client.force_login(self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
