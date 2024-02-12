@@ -16,11 +16,14 @@ Including another URLconf
 """
 from django.urls import re_path
 from api import views
-urlpatterns = [
-    re_path('login', views.login),
-    re_path('signup', views.signup),
-    re_path('test_token', views.test_token),
-    re_path('dataget',views.dataget),
-    re_path('', views.ApiOverview, name='home')
+from django.urls import path
+from api import views
 
+urlpatterns = [
+    path('login/', views.login, name='login'),
+    path('signup/', views.signup, name='signup'),
+    path('test_token/', views.test_token, name='test_token'),
+    path('dataget/', views.dataget, name='dataget'),
+    path('', views.ApiOverview, name='home'),
 ]
+
