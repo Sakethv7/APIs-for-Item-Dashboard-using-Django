@@ -60,10 +60,7 @@ def signup(request):
 def test_token(request):
     return Response({"passed for {}".format(request.user.email)})
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def dataget(request):
-    return Response("data is accessible")
+
 
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
