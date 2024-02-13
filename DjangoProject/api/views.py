@@ -91,7 +91,7 @@ def get_all_itemsbyParameters(request):
         filters['sku__icontains'] = sku
     if name:
         filters['name__icontains'] = name
-    if name:
+    if category:
         filters['category__icontains'] = category
     # Add more filters based on additional parameters
 
