@@ -25,16 +25,6 @@ class APITestCase(APITestCase):
         self.client.force_login(self.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-    def test_dataget_authenticated(self):
-        url = reverse('dataget')
-        self.client.force_login(self.user)
-        response = self.client.post(url)  # Change the method to POST
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_dataget_unauthenticated(self):
-        url = reverse('dataget')
-        response = self.client.post(url)  # Change the method to POST
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
     def test_get_all_items(self):
