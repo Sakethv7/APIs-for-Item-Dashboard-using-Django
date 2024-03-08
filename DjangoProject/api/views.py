@@ -17,9 +17,9 @@ from .serializers import ItemSerializer, UserSerializer
 
 
 
-@api_view(['POST'])
-@authentication_classes([SessionAuthentication, TokenAuthentication])
-@permission_classes([IsAuthenticated])
+@api_view(['POST'])# Decorator 'api_view' defines the allowed HTTP methods; here, only POST is allowed
+@authentication_classes([SessionAuthentication, TokenAuthentication])# 'authentication_classes' specifies the ways a user can be authenticated; this view allows, Session-based or Token-based authentication
+@permission_classes([IsAuthenticated]) # 'permission_classes' defines the permissions required; 'IsAuthenticated' means the user must be logged in
 def add_items(request):
     item_serializer = ItemSerializer(data=request.data)
     if 'sku' in request.data and Item.objects.filter(sku=request.data['sku']).exists():
@@ -30,9 +30,9 @@ def add_items(request):
         return Response(item_serializer.data, status=status.HTTP_201_CREATED)
     else:
         return Response(item_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['POST'])
-def login(request):
+z
+@api_view(['POST']) # No authentication or permission decorators here, means this view is accessible without authentication
+def login(request): # This view handles user login and is accessible to any user without prior authentication
     user = get_object_or_404(User, username=request.data['username'])
     if not user.check_password(request.data['password']):
         return Response({"details": "Not Found"}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
@@ -41,7 +41,7 @@ def login(request):
     return Response({"token": token.key, "user": serializer.data})
 
 
-@api_view(['POST'])
+@api_view(['POST']) # This is another view accessible without authentication, meant for users to create an account
 def signup(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
@@ -54,7 +54,7 @@ def signup(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
+@api_view(['GET'])  # This GET endpoint requires the user to be authenticated to test the validity of their token
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def test_token(request):
@@ -65,14 +65,15 @@ def test_token(request):
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def get_all_items(request):
+def get_all_items(request):   # Users must be authenticated to access this view that returns all items in the database
     items = Item.objects.all()
     serializer = ItemSerializer(items, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication, TokenAuthentication])
+@authentication_classes([SessionAuthentication, TokenAuthentication])  # Similar to 'get_all_items', but allows filtering items based on query parameters
+# Authentication and permissions are required as above
 @permission_classes([IsAuthenticated])
 def get_all_itemsbyParameters(request):
     # Retrieve query parameters from the request
